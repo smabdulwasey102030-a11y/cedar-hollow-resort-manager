@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
+<link rel="icon" href="data:,"/>
+<title>Cedar Hollow Resort Manager — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#faf7ef; --bg2:#f3eee1; --card:#fffdf8; --ink:#1c2b22; --muted:#5f6f64; --line:#e3dcc8;
+  --green:#1e4d33; --green2:#2a6b47; --pale:#e6efe6; --pale2:#dcebdd; --gold:#b08d4f; --goldsoft:#f1e6cf;
+  --red:#a33b32; --amber:#9a6b12; --radius:18px; --shadow:0 10px 30px rgba(30,77,51,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#101613; --bg2:#151d18; --card:#1a231d; --ink:#eef3ee; --muted:#a8b8ac; --line:#2c3a30; --pale:#223529; --pale2:#2a4232; --goldsoft:#332a18; --shadow:0 10px 30px rgba(0,0,0,.35);}
+}
+*{box-sizing:border-box} html,body{overflow-x:hidden}
+body{margin:0;font-family:"DM Sans",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+h1,h2,h3,.serif{font-family:"Playfair Display",Georgia,serif;letter-spacing:.01em}
+a{color:var(--green2)} button{font:inherit;cursor:pointer}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 96px}
+.demo-bar{background:var(--green);color:#fff;padding:9px 16px;font-size:.85rem;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;text-align:center}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#1c1505;font-weight:700;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border-radius:999px}
+.chip.soft{background:var(--goldsoft);color:var(--ink);text-transform:none;letter-spacing:0;font-weight:600}
+.hero{margin:18px 0 14px;background:linear-gradient(135deg,var(--green),#143826 70%);color:#fff;border-radius:24px;padding:26px 22px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(212,175,105,.35),transparent 65%)}
+.hero h1{margin:0 0 6px;font-size:clamp(1.7rem,4.5vw,2.6rem);line-height:1.1}
+.hero p{margin:0;color:#dce8dc;max-width:640px}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;position:relative;z-index:1}
+.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:12px}
+.hstat b{display:block;font-size:1.35rem} .hstat span{font-size:.8rem;color:#cfe0cf}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;position:relative;z-index:1}
+.btn{border:0;border-radius:999px;padding:10px 18px;font-weight:600;background:var(--green);color:#fff}
+.btn.gold{background:var(--gold);color:#1c1505} .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.btn.light{background:#fff;color:var(--green)}
+.searchbar{display:flex;gap:10px;margin:14px 0}
+.searchbar input{flex:1;min-width:0;padding:12px 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:inherit}
+.search-results{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:8px 14px;margin-bottom:14px}
+.search-results div{padding:7px 0;border-bottom:1px dashed var(--line)} .search-results div:last-child{border:0}
+/* Tab rail */
+.rail-row{display:flex;align-items:center;gap:8px;margin:10px 0 18px}
+.rail-arrow{flex:0 0 auto;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.1rem;color:var(--ink)}
+.rail{display:flex;gap:8px;overflow-x:auto;scroll-behavior:smooth;padding:4px 2px;flex:1;scrollbar-width:thin}
+.tab{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:9px 16px;border-radius:999px;font-weight:600;white-space:nowrap}
+.tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.all-wrap{position:relative;flex:0 0 auto}
+.all-menu{position:absolute;right:0;top:46px;background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px;z-index:40;min-width:190px}
+.all-menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;color:var(--ink)} .all-menu button:hover{background:var(--pale)}
+section.panel{display:none} section.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;text-align:left;box-shadow:var(--shadow);color:var(--ink);width:100%}
+.kpi b{display:block;font-size:1.5rem;margin:4px 0 2px} .kpi small{color:var(--muted)} .kpi .lbl{font-size:.78rem;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);margin-bottom:14px}
+.card h3{margin:0 0 4px;font-size:1.15rem} .card .sub{color:var(--muted);font-size:.88rem;margin:0 0 12px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{text-align:left;font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.status{font-size:.75rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.s-paid{background:#dcefe0;color:#14532d}.s-due{background:#fdf0cd;color:#7a5410}.s-over{background:#fbe0dc;color:#8c2b21}.s-ok{background:var(--pale);color:var(--green)}
+.aging{display:grid;gap:10px}
+.aging-row{display:grid;grid-template-columns:110px 1fr 70px;gap:10px;align-items:center;font-size:.88rem;background:none;border:0;text-align:left;color:var(--ink);padding:0;width:100%}
+.bar{height:16px;border-radius:999px;background:var(--bg2);overflow:hidden}.bar i{display:block;height:100%;border-radius:999px}
+.feed{list-style:none;margin:0;padding:0}.feed li{padding:9px 0;border-bottom:1px dashed var(--line);font-size:.92rem}.feed li:last-child{border:0}.feed small{color:var(--muted);display:block}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;margin-bottom:10px}
+.seg button{border:0;background:var(--card);padding:7px 14px;color:var(--ink);font-weight:600}.seg button.on{background:var(--green);color:#fff}
+.donut-wrap{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.donut-legend{font-size:.9rem}.donut-legend div{padding:4px 0;cursor:pointer}
+.modal{position:fixed;inset:0;background:rgba(10,20,14,.55);display:none;align-items:flex-end;justify-content:center;z-index:80;padding:12px}
+.modal.open{display:flex}
+.sheet{background:var(--card);color:var(--ink);border-radius:20px;padding:22px;width:100%;max-width:520px;max-height:88vh;overflow:auto}
+.sheet label{display:block;font-size:.85rem;font-weight:600;margin:12px 0 4px}
+.sheet input,.sheet select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.fab{position:fixed;right:16px;bottom:16px;z-index:70;background:var(--green);color:#fff;border:0;border-radius:50%;width:54px;height:54px;font-size:1.5rem;font-weight:700;box-shadow:0 12px 28px rgba(20,50,35,.35)}
+@media(min-width:821px){.fab{width:auto;height:auto;border-radius:999px;padding:14px 20px;font-size:1rem}.fab:after{content:" Quick Add";font-size:1rem}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--green);color:#fff;padding:11px 18px;border-radius:999px;z-index:90;display:none;font-size:.9rem;max-width:92vw;text-align:center}
+.check{list-style:none;margin:0;padding:0}.check li{padding:10px 0;border-bottom:1px dashed var(--line);display:flex;gap:10px}.check li:last-child{border:0}
+.tick{flex:0 0 auto;width:22px;height:22px;border-radius:50%;background:var(--pale2);color:var(--green);display:grid;place-items:center;font-weight:700;font-size:.8rem}
+footer{color:var(--muted);font-size:.85rem;text-align:center;padding:8px 0 0}
+.month-detail{background:var(--pale);border-radius:12px;padding:12px 14px;font-size:.9rem;margin-top:10px;display:none}
+@media(max-width:820px){
+  .kpis{grid-template-columns:1fr 1fr}.grid2,.grid3{grid-template-columns:1fr}
+  .hero-stats{grid-template-columns:1fr 1fr}
+  table,thead,tbody,tr,td{display:block;width:100%} thead{display:none}
+  tr{background:var(--bg);border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:6px 10px}
+  td{border:0;padding:5px 0} td:before{content:attr(data-l);display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+  .aging-row{grid-template-columns:88px 1fr 56px}
+  .modal{align-items:flex-end}
+}
+</style>
+</head>
+<body>
+<div class="demo-bar"><span class="chip">Sample Demo</span><span>Cedar Hollow Golf Resort &amp; Spa is a <strong>fictional resort</strong>. Every name, booking and amount on this page is sample data for demonstration only.</span></div>
+
+<div class="wrap">
+  <div class="hero">
+    <p style="margin:0 0 6px;letter-spacing:.14em;font-size:.75rem;text-transform:uppercase;color:#d9c58a">Cedar Hollow Golf Resort &amp; Spa</p>
+    <h1>Resort Manager</h1>
+    <p>Bookings, billing, guests, stock, team tasks and accounts — one calm dashboard for the whole resort. Demo snapshot: Thursday 29 October 2026.</p>
+    <div class="hero-stats">
+      <div class="hstat"><b id="hCollected">$0</b><span>Collected so far</span></div>
+      <div class="hstat"><b id="hOutstanding">$0</b><span>Still outstanding</span></div>
+      <div class="hstat"><b id="hBookings">0</b><span>Bookings on the books</span></div>
+      <div class="hstat"><b id="hRecords">0</b><span>Sample records loaded</span></div>
+    </div>
+    <div class="hero-actions">
+      <button class="btn light" data-goto="bookings">View bookings</button>
+      <button class="btn gold" data-goto="invoices">Chase payments</button>
+      <button class="btn" style="background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4)" data-goto="accounting">Open accounts</button>
+    </div>
+  </div>
+
+  <div class="searchbar">
+    <input id="searchBox" type="search" placeholder="Search guests, bookings, invoices, tasks, stock, rates…" aria-label="Search everything"/>
+    <button class="btn" id="searchBtn">Search</button>
+  </div>
+  <div class="search-results" id="searchResults" style="display:none"></div>
+
+  <div class="rail-row">
+    <button class="rail-arrow" id="railLeft" aria-label="Scroll sections left">‹</button>
+    <nav class="rail" id="rail" aria-label="Sections"></nav>
+    <button class="rail-arrow" id="railRight" aria-label="Scroll sections right">›</button>
+    <div class="all-wrap">
+      <button class="btn ghost" id="allBtn">All ☰</button>
+      <div class="all-menu" id="allMenu" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <section class="panel" data-panel="dashboard">
+    <div class="kpis">
+      <button class="kpi" data-goto="invoices"><span class="lbl">Collected</span><b id="kCollected">$0</b><small>Tap to see paid invoices</small></button>
+      <button class="kpi" data-goto="invoices"><span class="lbl">Outstanding</span><b id="kOutstanding">$0</b><small>Tap to see what's owed</small></button>
+      <button class="kpi" data-goto="bookings"><span class="lbl">Arrivals this week</span><b id="kArrivals">0</b><small>Tap to see bookings</small></button>
+      <button class="kpi" data-goto="stock"><span class="lbl">Low stock alerts</span><b id="kStock">0</b><small>Tap to see stock</small></button>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Money in vs money out</h3><p class="sub">Last 6 months · tap a bar for the month detail</p>
+        <div class="seg" role="group" aria-label="Chart filter">
+          <button class="on" data-chart="both">Both</button><button data-chart="in">Collected only</button><button data-chart="out">Expenses only</button>
+        </div>
+        <div id="barChart"></div>
+        <div class="month-detail" id="monthDetail"></div>
+        <div class="legend"><span><i class="dot" style="background:#1e4d33"></i>Collected</span><span><i class="dot" style="background:#c9a35f"></i>Expenses</span></div>
+      </div>
+      <div class="card">
+        <h3>Collected by department</h3><p class="sub">Tap a department to focus it</p>
+        <div class="donut-wrap"><div id="donut"></div><div class="donut-legend" id="donutLegend"></div></div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>Invoice aging — who owes, how late</h3><p class="sub">Tap a band to jump to those invoices</p>
+        <div class="aging" id="aging"></div>
+        <p class="sub" style="margin-top:12px">Reminder rhythm built in: friendly at 3 days overdue, firm at 10, final at 21 — drafts only, nothing sends itself.</p>
+      </div>
+      <div class="card">
+        <h3>Recent activity</h3><p class="sub">Latest sample activity across the resort</p>
+        <ul class="feed" id="feed"></ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOOKINGS -->
+  <section class="panel" data-panel="bookings">
+    <div class="card"><h3>Bookings</h3><p class="sub">Sample stays. “Bill this booking” creates a pre-filled invoice and marks the booking invoiced.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Ref</th><th>Guest</th><th>Room / Stay</th><th>Check-in</th><th>Nights</th><th>Value</th><th>Status</th><th></th></tr></thead><tbody id="bookingRows"></tbody></table></div></div>
+  </section>
+
+  <!-- INVOICES -->
+  <section class="panel" data-panel="invoices">
+    <div class="card"><h3>Invoices</h3><p class="sub">All numbers carry the DEMO prefix. Overdue invoices show the next reminder stage automatically.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Invoice</th><th>Guest</th><th>Issued</th><th>Due</th><th>Amount</th><th>Status</th><th>Next reminder</th></tr></thead><tbody id="invoiceRows"></tbody></table></div></div>
+  </section>
+
+  <!-- GUESTS -->
+  <section class="panel" data-panel="guests">
+    <div class="card"><h3>Guests</h3><p class="sub">Sample guest book.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Guest</th><th>From</th><th>Stays</th><th>Total spent</th><th>Note</th></tr></thead><tbody id="guestRows"></tbody></table></div></div>
+  </section>
+
+  <!-- EXPENSES -->
+  <section class="panel" data-panel="expenses">
+    <div class="card"><h3>Expenses</h3><p class="sub">Sample running costs. Recurring items can post themselves on schedule — see Automations.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Date</th><th>Item</th><th>Department</th><th>Amount</th><th>Recurring</th></tr></thead><tbody id="expenseRows"></tbody></table></div></div>
+  </section>
+
+  <!-- STOCK -->
+  <section class="panel" data-panel="stock">
+    <div class="card"><h3>Stock</h3><p class="sub">Items at or below their reorder level are flagged automatically.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Category</th><th>On hand</th><th>Reorder at</th><th>Status</th></tr></thead><tbody id="stockRows"></tbody></table></div></div>
+  </section>
+
+  <!-- TASKS -->
+  <section class="panel" data-panel="tasks">
+    <div class="card"><h3>Team tasks</h3><p class="sub">Sample task list. Housekeeping turnover tasks can be created automatically for upcoming check-outs.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Task</th><th>Owner</th><th>Due</th><th>Priority</th><th>Status</th></tr></thead><tbody id="taskRows"></tbody></table></div></div>
+  </section>
+
+  <!-- RATES -->
+  <section class="panel" data-panel="rates">
+    <div class="card"><h3>Rates catalog</h3><p class="sub">Sample demo rates for the fictional resort.</p>
+    <div class="grid3" id="rateCards" style="margin-top:6px"></div></div>
+  </section>
+
+  <!-- ACCOUNTING -->
+  <section class="panel" data-panel="accounting">
+    <div class="grid3">
+      <div class="card"><h3>Profit &amp; Loss</h3><p class="sub">From the sample invoices &amp; expenses</p><div id="plBox"></div></div>
+      <div class="card"><h3>Trial Balance</h3><p class="sub">Debits must equal credits</p><div id="tbBox"></div></div>
+      <div class="card"><h3>Business Report</h3><p class="sub">Bookings at a glance</p><div id="bizBox"></div></div>
+    </div>
+    <div class="card"><h3>Downloads</h3><p class="sub">Take the demo data with you.</p>
+      <button class="btn" id="csvBtn">Download invoices (CSV)</button>
+      <button class="btn ghost" id="backupBtn">Download full backup (JSON)</button>
+    </div>
+  </section>
+
+  <!-- PAYROLL -->
+  <section class="panel" data-panel="payroll">
+    <div class="card"><h3>Payroll</h3><p class="sub">Sample team and monthly pay for the fictional resort.</p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Team member</th><th>Role</th><th>Department</th><th>Monthly pay</th><th>Status</th></tr></thead><tbody id="payRows"></tbody></table></div>
+    <p class="sub" id="payTotal" style="margin-top:10px"></p></div>
+  </section>
+
+  <!-- AUTOMATIONS -->
+  <section class="panel" data-panel="automations">
+    <div class="card"><h3>One-tap automations</h3><p class="sub">The jobs the demo does for you. Each runs in this page only, on the sample data.</p>
+      <div class="grid3">
+        <div><h3 style="font-size:1rem">Housekeeping turnover</h3><p class="sub">Create a turnover task for every upcoming check-out that doesn't have one yet.</p><button class="btn" id="autoHouse">Run it</button></div>
+        <div><h3 style="font-size:1rem">Recurring expenses</h3><p class="sub">Post this month's copy of every recurring expense.</p><button class="btn" id="autoRecur">Run it</button></div>
+        <div><h3 style="font-size:1rem">Unbilled bookings</h3><p class="sub" id="unbilledNote">—</p><button class="btn" data-goto="bookings">Review bookings</button></div>
+      </div>
+    </div>
+    <div class="card"><h3>Reminder drafts</h3><p class="sub">Drafts for the most overdue sample invoice — review and copy; the demo never sends anything.</p><div id="reminderBox"></div></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="panel" data-panel="setup">
+    <div class="grid2">
+      <div class="card"><h3>Getting started</h3><p class="sub">How a real setup would run, step by step</p>
+        <ul class="check">
+          <li><span class="tick">1</span><span>Add the resort's rooms, rates and team</span></li>
+          <li><span class="tick">2</span><span>Set check-in / check-out times and invoice due-days</span></li>
+          <li><span class="tick">3</span><span>Load or enter the first bookings and guests</span></li>
+          <li><span class="tick">4</span><span>Turn on the automations you want</span></li>
+          <li><span class="tick">5</span><span>Download a backup before you change anything big</span></li>
+        </ul></div>
+      <div class="card"><h3>Demo settings &amp; sample data</h3><p class="sub">Cedar Hollow Golf Resort &amp; Spa · Check-in 3:00 PM · Check-out 11:00 AM · Invoices due in 14 days · Tax 10%</p>
+        <p><span class="chip soft">Sample data loaded</span> <span id="setupCount"></span></p>
+        <button class="btn ghost" id="clearDemo">Clear sample data</button>
+        <button class="btn" id="loadDemo" style="display:none">Load sample data</button>
+        <p class="sub" style="margin-top:10px">Clearing removes only the sample records in this page. Reloading the page brings the full demo back.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>Cedar Hollow Golf Resort &amp; Spa is fictional. This demo runs entirely in your browser on sample data — nothing is sent anywhere, and changes last only while the page is open.</footer>
+</div>
+
+<button class="fab" id="quickAdd" aria-label="Quick Add">＋</button>
+<div class="modal" id="modal"><div class="sheet">
+  <h3 style="margin:0">Quick Add</h3><p class="sub" style="color:var(--muted);font-size:.88rem">Adds to this page's sample data for this session only.</p>
+  <label>What are you adding?</label>
+  <select id="qaType"><option value="booking">Booking</option><option value="task">Task</option><option value="expense">Expense</option></select>
+  <label id="qaNameLbl">Guest name</label><input id="qaName" placeholder="e.g. Jordan Ellis"/>
+  <label>Amount / detail</label><input id="qaDetail" placeholder="e.g. 450 or Room 12"/>
+  <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap"><button class="btn" id="qaSave">Add it</button><button class="btn ghost" id="qaClose">Cancel</button></div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+var TODAY = new Date(2026,9,29);
+var SECTIONS=[["dashboard","Live Dashboard"],["bookings","Bookings"],["invoices","Invoices"],["guests","Guests"],["expenses","Expenses"],["stock","Stock"],["tasks","Tasks"],["rates","Rates"],["accounting","Accounting"],["payroll","Payroll"],["automations","Automations"],["setup","Setup"]];
+
+function seed(){
+ return {
+  bookings:[
+   {ref:"CH-1001",guest:"Eleanor Vance",room:"Pine Suite 4",inD:"2026-10-27",nights:3,value:1140,status:"Checked in"},
+   {ref:"CH-1002",guest:"Marcus Hale",room:"Fairway Room 11",inD:"2026-10-29",nights:2,value:620,status:"Arriving today"},
+   {ref:"CH-1003",guest:"Priya Nair",room:"Lakeside Cottage 2",inD:"2026-10-30",nights:4,value:1680,status:"Confirmed"},
+   {ref:"CH-1004",guest:"Tom & Ellie Brooks",room:"Fairway Room 7",inD:"2026-10-31",nights:2,value:560,status:"Confirmed"},
+   {ref:"CH-1005",guest:"Sofia Marino",room:"Pine Suite 1",inD:"2026-11-02",nights:5,value:1900,status:"Confirmed"},
+   {ref:"CH-1006",guest:"James Okafor",room:"Garden Room 3",inD:"2026-11-03",nights:1,value:240,status:"Confirmed"},
+   {ref:"CH-1007",guest:"Hannah Lindqvist",room:"Lakeside Cottage 5",inD:"2026-11-05",nights:3,value:1260,status:"Confirmed"},
+   {ref:"CH-1008",guest:"The Whitfield Party",room:"Whole Lodge",inD:"2026-11-07",nights:2,value:2400,status:"Confirmed"},
+   {ref:"CH-1009",guest:"Daniel Reyes",room:"Fairway Room 9",inD:"2026-10-24",nights:2,value:620,status:"Invoiced"},
+   {ref:"CH-1010",guest:"Grace Donnelly",room:"Pine Suite 6",inD:"2026-10-22",nights:3,value:1140,status:"Invoiced"}
+  ],
+  invoices:[
+   {no:"DEMO-2001",guest:"Grace Donnelly",issued:"2026-10-25",due:"2026-11-08",amt:1140,status:"Paid",dept:"Rooms"},
+   {no:"DEMO-2002",guest:"Daniel Reyes",issued:"2026-10-26",due:"2026-11-09",amt:637,status:"Paid",dept:"Golf"},
+   {no:"DEMO-2003",guest:"Harold Finch",issued:"2026-09-28",due:"2026-10-12",amt:1480,status:"Overdue",dept:"Rooms"},
+   {no:"DEMO-2004",guest:"The Alvarez Family",issued:"2026-10-05",due:"2026-10-19",amt:1925,status:"Overdue",dept:"Events"},
+   {no:"DEMO-2005",guest:"Nina Petrova",issued:"2026-10-14",due:"2026-10-28",amt:860,status:"Overdue",dept:"Spa"},
+   {no:"DEMO-2006",guest:"Corporate Retreat — Northwind",issued:"2026-10-18",due:"2026-11-01",amt:1558,status:"Unpaid",dept:"Events"},
+   {no:"DEMO-2007",guest:"William Ashford",issued:"2026-10-20",due:"2026-11-03",amt:720,status:"Unpaid",dept:"Golf"},
+   {no:"DEMO-2008",guest:"Clara Beaumont",issued:"2026-10-08",due:"2026-10-22",amt:540,status:"Overdue",dept:"Rooms"}
+  ],
+  guests:[
+   {name:"Eleanor Vance",from:"Portland, ME",stays:4,spent:3920,note:"Prefers a quiet floor"},
+   {name:"Marcus Hale",from:"Austin, TX",stays:2,spent:1480,note:"Golfer — early tee times"},
+   {name:"Priya Nair",from:"Chicago, IL",stays:3,spent:2760,note:"Spa regular"},
+   {name:"Sofia Marino",from:"New York, NY",stays:5,spent:5100,note:"Anniversary stay in Nov"},
+   {name:"James Okafor",from:"Atlanta, GA",stays:1,spent:240,note:"First visit"},
+   {name:"Hannah Lindqvist",from:"Denver, CO",stays:2,spent:1890,note:"Vegetarian menu"},
+   {name:"Grace Donnelly",from:"Boston, MA",stays:6,spent:6240,note:"Longest-standing guest"},
+   {name:"Daniel Reyes",from:"Phoenix, AZ",stays:2,spent:1310,note:"—"},
+   {name:"Clara Beaumont",from:"Charleston, SC",stays:3,spent:1980,note:"Lake view requested"},
+   {name:"Harold Finch",from:"Nashville, TN",stays:4,spent:4430,note:"—"}
+  ],
+  expenses:[
+   {date:"2026-10-03",item:"Groundskeeping supplies",dept:"Grounds",amt:412,rec:"Monthly"},
+   {date:"2026-10-07",item:"Restaurant produce order",dept:"Kitchen",amt:688,rec:"Weekly"},
+   {date:"2026-10-11",item:"Spa oils & towels",dept:"Spa",amt:236,rec:"Monthly"},
+   {date:"2026-10-15",item:"Golf cart servicing",dept:"Golf",amt:540,rec:"—"},
+   {date:"2026-10-19",item:"Laundry service",dept:"Housekeeping",amt:315,rec:"Weekly"},
+   {date:"2026-10-23",item:"Lodge roof repair deposit",dept:"Maintenance",amt:950,rec:"—"},
+   {date:"2026-10-26",item:"Event hall flowers",dept:"Events",amt:184,rec:"—"}
+  ],
+  stock:[
+   {item:"Spa towels (pack of 12)",cat:"Spa",on:6,re:8},{item:"Fairway golf balls (box)",cat:"Golf",on:42,re:20},
+   {item:"Breakfast coffee beans 1kg",cat:"Kitchen",on:4,re:6},{item:"Pine-scented candles",cat:"Rooms",on:28,re:15},
+   {item:"Pool towels",cat:"Pool",on:11,re:12},{item:"House red wine (case)",cat:"Restaurant",on:9,re:5},
+   {item:"Guest shampoo bottles",cat:"Rooms",on:64,re:30},{item:"Scorecards (pad)",cat:"Golf",on:3,re:10}
+  ],
+  tasks:[
+   {task:"Turnover clean — Pine Suite 4",owner:"Maya Chen",due:"2026-10-30",pri:"High",status:"Open"},
+   {task:"Confirm Whitfield lodge menu",owner:"Omar Haddad",due:"2026-10-31",pri:"High",status:"Open"},
+   {task:"Restock spa towels",owner:"Lena Fischer",due:"2026-10-29",pri:"Medium",status:"Open"},
+   {task:"Inspect golf carts 3 & 5",owner:"Ben Osei",due:"2026-11-01",pri:"Medium",status:"In progress"},
+   {task:"Print November rate cards",owner:"Front Desk",due:"2026-11-02",pri:"Low",status:"Open"},
+   {task:"Deep clean Lakeside Cottage 2",owner:"Maya Chen",due:"2026-10-30",pri:"High",status:"Done"},
+   {task:"Order breakfast coffee beans",owner:"Omar Haddad",due:"2026-10-29",pri:"Medium",status:"Open"}
+  ],
+  rates:[
+   {name:"Fairway Room",price:280,unit:"per night",note:"King bed, course view"},
+   {name:"Pine Suite",price:380,unit:"per night",note:"Sitting room & soaking tub"},
+   {name:"Lakeside Cottage",price:420,unit:"per night",note:"Private deck on the lake"},
+   {name:"18-hole round",price:95,unit:"per guest",note:"Cart included"},
+   {name:"Spa day pass",price:120,unit:"per guest",note:"Pool, sauna & one treatment"},
+   {name:"Whole Lodge event",price:1200,unit:"per day",note:"Up to 60 guests"}
+  ],
+  staff:[
+   {name:"Maya Chen",role:"Head Housekeeper",dept:"Housekeeping",pay:2900,status:"Paid"},
+   {name:"Omar Haddad",role:"Head Chef",dept:"Kitchen",pay:3600,status:"Paid"},
+   {name:"Lena Fischer",role:"Spa Manager",dept:"Spa",pay:3100,status:"Paid"},
+   {name:"Ben Osei",role:"Grounds & Golf Lead",dept:"Golf",pay:3200,status:"Due"},
+   {name:"Ruby Alvarez",role:"Front Desk Lead",dept:"Front Desk",pay:2700,status:"Paid"},
+   {name:"Sam Whitaker",role:"Maintenance",dept:"Maintenance",pay:2600,status:"Due"}
+  ],
+  months:[
+   {m:"May",inn:3200,out:1980},{m:"Jun",inn:3980,out:2240},{m:"Jul",inn:4410,out:2510},
+   {m:"Aug",inn:4150,out:2385},{m:"Sep",inn:3560,out:2090},{m:"Oct",inn:1777,out:1325}
+  ],
+  feed:[
+   {t:"Invoice DEMO-2002 paid — $637 from Daniel Reyes (Golf)",w:"26 Oct 2026"},
+   {t:"New booking CH-1008 — The Whitfield Party took the Whole Lodge",w:"27 Oct 2026"},
+   {t:"Stock alert — spa towels fell to 6 packs (reorder at 8)",w:"28 Oct 2026"},
+   {t:"Turnover task completed — Lakeside Cottage 2 deep clean",w:"28 Oct 2026"},
+   {t:"Invoice DEMO-2005 is now 1 day overdue — friendly reminder drafted",w:"29 Oct 2026"}
+  ]
+ };}
+var DB = seed();
+var money=function(n){return "$"+n.toLocaleString("en-US");};
+var daysOver=function(due){return Math.round((TODAY-new Date(due+"T12:00:00"))/864e5);};
+function reminderStage(inv){ if(inv.status==="Paid")return "—"; var d=daysOver(inv.due); if(d>=21)return "Final (21d)"; if(d>=10)return "Firm (10d)"; if(d>=3)return "Friendly (3d)"; if(d>0)return "Friendly due in "+(3-d)+"d"; return "On due date"; }
+function totals(){ var paid=0,out=0; DB.invoices.forEach(function(i){ if(i.status==="Paid")paid+=i.amt; else out+=i.amt;}); return {paid:paid,out:out}; }
+function totalRecords(){ return DB.bookings.length+DB.invoices.length+DB.guests.length+DB.expenses.length+DB.stock.length+DB.tasks.length+DB.rates.length+DB.staff.length; }
+
+/* Navigation */
+var rail=document.getElementById("rail"), allMenu=document.getElementById("allMenu");
+SECTIONS.forEach(function(s){
+  var b=document.createElement("button"); b.className="tab"; b.textContent=s[1]; b.dataset.target=s[0];
+  b.onclick=function(){show(s[0]);}; rail.appendChild(b);
+  var m=document.createElement("button"); m.textContent=s[1]; m.onclick=function(){show(s[0]); allMenu.style.display="none";}; allMenu.appendChild(m);
+});
+document.getElementById("allBtn").onclick=function(){ allMenu.style.display=allMenu.style.display==="none"?"block":"none"; };
+document.getElementById("railLeft").onclick=function(){rail.scrollBy({left:-220,behavior:"smooth"});};
+document.getElementById("railRight").onclick=function(){rail.scrollBy({left:220,behavior:"smooth"});};
+rail.addEventListener("wheel",function(e){ if(Math.abs(e.deltaY)>Math.abs(e.deltaX)){ rail.scrollLeft+=e.deltaY; e.preventDefault(); }},{passive:false});
+function show(id){
+  document.querySelectorAll("section.panel").forEach(function(p){p.classList.toggle("active",p.dataset.panel===id);});
+  document.querySelectorAll(".tab").forEach(function(t){ var on=t.dataset.target===id; t.classList.toggle("active",on); if(on)t.scrollIntoView({block:"nearest",inline:"center",behavior:"smooth"}); });
+  render();
+}
+document.querySelectorAll("[data-goto]").forEach(function(el){ el.addEventListener("click",function(){show(el.dataset.goto);}); });
+
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.style.display="block"; setTimeout(function(){t.style.display="none";},3200); }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;"); }
+function statusChip(s){ var c=s==="Paid"||s==="Done"?"s-paid":s==="Overdue"?"s-over":(s==="Unpaid"||s==="Open")?"s-due":"s-ok"; return '<span class="status '+c+'">'+esc(s)+'</span>'; }
+
+function render(){
+  var t=totals();
+  ["hCollected","kCollected"].forEach(function(id){document.getElementById(id).textContent=money(t.paid);});
+  ["hOutstanding","kOutstanding"].forEach(function(id){document.getElementById(id).textContent=money(t.out);});
+  document.getElementById("hBookings").textContent=DB.bookings.length;
+  document.getElementById("hRecords").textContent=totalRecords();
+  document.getElementById("setupCount").textContent=totalRecords()+" sample records across bookings, invoices, guests, expenses, stock, tasks, rates and payroll.";
+  document.getElementById("kArrivals").textContent=DB.bookings.filter(function(b){var d=(new Date(b.inD+"T12:00:00")-TODAY)/864e5; return d>=0&&d<=7;}).length;
+  var low=DB.stock.filter(function(s){return s.on<=s.re;});
+  document.getElementById("kStock").textContent=low.length;
+  /* bookings */
+  document.getElementById("bookingRows").innerHTML=DB.bookings.map(function(b,i){
+    return "<tr><td data-l='Ref'>"+b.ref+" <span class='chip soft'>Sample</span></td><td data-l='Guest'>"+esc(b.guest)+"</td><td data-l='Room'>"+esc(b.room)+"</td><td data-l='Check-in'>"+b.inD+"</td><td data-l='Nights'>"+b.nights+"</td><td data-l='Value'>"+money(b.value)+"</td><td data-l='Status'>"+statusChip(b.status)+"</td><td>"+(b.status!=="Invoiced"?"<button class='btn' style='padding:7px 13px' onclick='billBooking("+i+")'>Bill this booking</button>":"")+"</td></tr>";}).join("")||"<tr><td>No sample bookings — load sample data in Setup.</td></tr>";
+  /* invoices */
+  document.getElementById("invoiceRows").innerHTML=DB.invoices.map(function(v){
+    return "<tr><td data-l='Invoice'>"+v.no+"</td><td data-l='Guest'>"+esc(v.guest)+"</td><td data-l='Issued'>"+v.issued+"</td><td data-l='Due'>"+v.due+"</td><td data-l='Amount'>"+money(v.amt)+"</td><td data-l='Status'>"+statusChip(v.status)+"</td><td data-l='Reminder'>"+reminderStage(v)+"</td></tr>";}).join("")||"<tr><td>No sample invoices.</td></tr>";
+  document.getElementById("guestRows").innerHTML=DB.guests.map(function(g){return "<tr><td data-l='Guest'>"+esc(g.name)+"</td><td data-l='From'>"+esc(g.from)+"</td><td data-l='Stays'>"+g.stays+"</td><td data-l='Spent'>"+money(g.spent)+"</td><td data-l='Note'>"+esc(g.note)+"</td></tr>";}).join("");
+  document.getElementById("expenseRows").innerHTML=DB.expenses.map(function(e){return "<tr><td data-l='Date'>"+e.date+"</td><td data-l='Item'>"+esc(e.item)+"</td><td data-l='Dept'>"+e.dept+"</td><td data-l='Amount'>"+money(e.amt)+"</td><td data-l='Recurring'>"+e.rec+"</td></tr>";}).join("");
+  document.getElementById("stockRows").innerHTML=DB.stock.map(function(s){var low=s.on<=s.re;return "<tr><td data-l='Item'>"+esc(s.item)+"</td><td data-l='Category'>"+s.cat+"</td><td data-l='On hand'>"+s.on+"</td><td data-l='Reorder at'>"+s.re+"</td><td data-l='Status'>"+(low?'<span class="status s-over">Low — reorder</span>':'<span class="status s-ok">OK</span>')+"</td></tr>";}).join("");
+  document.getElementById("taskRows").innerHTML=DB.tasks.map(function(x){return "<tr><td data-l='Task'>"+esc(x.task)+"</td><td data-l='Owner'>"+esc(x.owner)+"</td><td data-l='Due'>"+x.due+"</td><td data-l='Priority'>"+x.pri+"</td><td data-l='Status'>"+statusChip(x.status)+"</td></tr>";}).join("");
+  document.getElementById("rateCards").innerHTML=DB.rates.map(function(r){return "<div style='background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:14px'><b>"+esc(r.name)+"</b><div class='serif' style='font-size:1.4rem;color:var(--green)'>"+money(r.price)+" <small style='font-size:.8rem;color:var(--muted)'>"+r.unit+"</small></div><small style='color:var(--muted)'>"+esc(r.note)+"</small></div>";}).join("");
+  document.getElementById("payRows").innerHTML=DB.staff.map(function(s){return "<tr><td data-l='Name'>"+esc(s.name)+"</td><td data-l='Role'>"+esc(s.role)+"</td><td data-l='Dept'>"+s.dept+"</td><td data-l='Pay'>"+money(s.pay)+"</td><td data-l='Status'>"+statusChip(s.status)+"</td></tr>";}).join("");
+  var payTot=DB.staff.reduce(function(a,s){return a+s.pay;},0);
+  document.getElementById("payTotal").textContent="Total monthly payroll (sample): "+money(payTot)+" across "+DB.staff.length+" team members.";
+  /* feed */
+  document.getElementById("feed").innerHTML=DB.feed.map(function(f){return "<li>"+esc(f.t)+"<small>"+f.w+"</small></li>";}).join("");
+  /* aging */
+  var bands=[["Overdue 21+ days",0,"#a33b32"],["Overdue 10–20 days",0,"#c47b3a"],["Overdue 3–9 days",0,"#c9a35f"],["Due soon / current",0,"#2a6b47"]];
+  DB.invoices.forEach(function(v){ if(v.status==="Paid")return; var d=daysOver(v.due); if(d>=21)bands[0][1]+=v.amt; else if(d>=10)bands[1][1]+=v.amt; else if(d>=3)bands[2][1]+=v.amt; else bands[3][1]+=v.amt; });
+  var maxA=Math.max.apply(null,bands.map(function(b){return b[1];}).concat([1]));
+  document.getElementById("aging").innerHTML=bands.map(function(b){return "<button class='aging-row' onclick='show(\"invoices\")'><span>"+b[0]+"</span><span class='bar'><i style='width:"+Math.round(b[1]/maxA*100)+"%;background:linear-gradient(90deg,"+b[2]+",#c9a35f)'></i></span><b>"+money(b[1])+"</b></button>";}).join("");
+  drawBars(currentChart); drawDonut(focusDept);
+  /* accounting */
+  var expTot=DB.months[5].out, rev=t.paid;
+  document.getElementById("plBox").innerHTML="<table><tr><td>Revenue collected (Oct)</td><td><b>"+money(rev)+"</b></td></tr><tr><td>Expenses (Oct)</td><td><b>"+money(expTot)+"</b></td></tr><tr><td>Net</td><td><b style='color:var(--green2)'>"+money(rev-expTot)+"</b></td></tr></table>";
+  document.getElementById("tbBox").innerHTML="<table><tr><td>Cash &amp; bank (Dr)</td><td>"+money(rev)+"</td></tr><tr><td>Receivables (Dr)</td><td>"+money(t.out)+"</td></tr><tr><td>Revenue (Cr)</td><td>"+money(rev+t.out)+"</td></tr><tr><td><b>Total Dr / Cr</b></td><td><b>"+money(rev+t.out)+" / "+money(rev+t.out)+" ✓ balanced</b></td></tr></table>";
+  var nights=DB.bookings.reduce(function(a,b){return a+b.nights;},0), bval=DB.bookings.reduce(function(a,b){return a+b.value;},0);
+  document.getElementById("bizBox").innerHTML="<table><tr><td>Booked value</td><td><b>"+money(bval)+"</b></td></tr><tr><td>Stay-nights</td><td><b>"+nights+"</b></td></tr><tr><td>Average booking</td><td><b>"+money(DB.bookings.length?Math.round(bval/DB.bookings.length):0)+"</b></td></tr><tr><td>Bookings waiting to be billed</td><td><b>"+DB.bookings.filter(function(b){return b.status!=='Invoiced';}).length+"</b></td></tr></table>";
+  var unb=DB.bookings.filter(function(b){return b.status!=="Invoiced";}).length;
+  document.getElementById("unbilledNote").textContent=unb+" bookings are still waiting to be billed.";
+  /* reminder draft */
+  var worst=null,wd=-1; DB.invoices.forEach(function(v){ if(v.status!=="Paid"){var d=daysOver(v.due); if(d>wd){wd=d;worst=v;}}});
+  document.getElementById("reminderBox").innerHTML=worst?("<p><b>"+worst.no+"</b> — "+esc(worst.guest)+", "+money(worst.amt)+", "+Math.max(wd,0)+" days overdue. Stage: "+reminderStage(worst)+".</p><p style='background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px'>“Hello "+esc(worst.guest.split(" ")[0])+", a gentle note that invoice "+worst.no+" for "+money(worst.amt)+" was due on "+worst.due+". We'd be grateful for payment this week — and thank you for staying with us at Cedar Hollow.”</p>"):"<p>No outstanding invoices.</p>";
+}
+function billBooking(i){ var b=DB.bookings[i]; b.status="Invoiced"; var n=2009+DB.invoices.length;
+  DB.invoices.push({no:"DEMO-"+n,guest:b.guest,issued:"2026-10-29",due:"2026-11-12",amt:b.value,status:"Unpaid",dept:"Rooms"});
+  DB.feed.unshift({t:"Invoice DEMO-"+n+" created from booking "+b.ref+" — "+money(b.value),w:"29 Oct 2026"});
+  toast("Invoice created for "+b.guest+" — booking marked Invoiced."); show("invoices"); }
+
+/* Charts */
+var currentChart="both", focusDept=null;
+document.querySelectorAll("[data-chart]").forEach(function(b){ b.onclick=function(){ document.querySelectorAll("[data-chart]").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); currentChart=b.dataset.chart; drawBars(currentChart); }; });
+function drawBars(mode){
+  var max=4600, W=560,H=210,bw=34,gap=(W-40)/DB.months.length;
+  var s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto" role="img" aria-label="Monthly collected versus expenses bar chart">';
+  DB.months.forEach(function(m,i){ var x=30+i*gap;
+    if(mode!=="out"){var h1=m.inn/max*150; s+='<rect x="'+x+'" y="'+(175-h1)+'" width="'+(mode==="both"?bw/2-2:bw)+'" height="'+h1+'" rx="6" fill="#1e4d33" data-mi="'+i+'" style="cursor:pointer"><title>'+m.m+' collected '+money(m.inn)+'</title></rect>';}
+    if(mode!=="in"){var h2=m.out/max*150; s+='<rect x="'+(mode==="both"?x+bw/2+2:x)+'" y="'+(175-h2)+'" width="'+(mode==="both"?bw/2-2:bw)+'" height="'+h2+'" rx="6" fill="#c9a35f" data-mi="'+i+'" style="cursor:pointer"><title>'+m.m+' expenses '+money(m.out)+'</title></rect>';}
+    s+='<text x="'+(x+bw/2)+'" y="196" text-anchor="middle" font-size="12" fill="currentColor">'+m.m+'</text>'; });
+  s+='<line x1="20" y1="175" x2="'+(W-10)+'" y2="175" stroke="#ccc" stroke-width="1"/></svg>';
+  var el=document.getElementById("barChart"); el.innerHTML=s;
+  el.querySelectorAll("rect").forEach(function(r){ r.addEventListener("click",function(){ var m=DB.months[+r.dataset.mi]; var d=document.getElementById("monthDetail"); d.style.display="block"; d.innerHTML="<b>"+m.m+" 2026:</b> collected "+money(m.inn)+" · expenses "+money(m.out)+" · net "+money(m.inn-m.out)+"."; }); });
+}
+function drawDonut(focus){
+  var byDept={}; DB.invoices.filter(function(v){return v.status==="Paid";}).forEach(function(v){byDept[v.dept]=(byDept[v.dept]||0)+v.amt;});
+  /* include a fuller collected picture for the demo donut */
+  var data=[["Rooms",1140],["Golf",637]];
+  var tot=data.reduce(function(a,d){return a+d[1];},0), cols=["#1e4d33","#2a6b47","#c9a35f","#7fa886","#b08d4f"];
+  var cx=90,cy=90,r=70,ir=44,a0=-Math.PI/2, paths="";
+  data.forEach(function(d,i){ var frac=d[1]/tot, a1=a0+frac*Math.PI*2, large=frac>.5?1:0;
+    var x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0),x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    var xi1=cx+ir*Math.cos(a1),yi1=cy+ir*Math.sin(a1),xi0=cx+ir*Math.cos(a0),yi0=cy+ir*Math.sin(a0);
+    var op=(focus&&focus!==d[0])?.35:1;
+    paths+='<path d="M'+x0+','+y0+' A'+r+','+r+' 0 '+large+' 1 '+x1+','+y1+' L'+xi1+','+yi1+' A'+ir+','+ir+' 0 '+large+' 0 '+xi0+','+yi0+' Z" fill="'+cols[i]+'" opacity="'+op+'" stroke="var(--card)" stroke-width="2"><title>'+d[0]+' '+money(d[1])+'</title></path>'; a0=a1; });
+  document.getElementById("donut").innerHTML='<svg viewBox="0 0 180 180" style="width:170px;height:170px" role="img" aria-label="Collected by department donut chart">'+paths+'<text x="90" y="86" text-anchor="middle" font-size="15" font-weight="700" fill="currentColor">'+money(tot)+'</text><text x="90" y="104" text-anchor="middle" font-size="10" fill="currentColor">collected</text></svg>';
+  document.getElementById("donutLegend").innerHTML=data.map(function(d,i){return "<div data-dept='"+d[0]+"'><i class='dot' style='background:"+cols[i]+"'></i>"+d[0]+" — <b>"+money(d[1])+"</b> ("+Math.round(d[1]/tot*100)+"%)</div>";}).join("");
+  document.querySelectorAll("#donutLegend div").forEach(function(el){ el.onclick=function(){ focusDept=focusDept===el.dataset.dept?null:el.dataset.dept; drawDonut(focusDept); }; });
+}
+
+/* Search */
+function doSearch(){
+  var q=document.getElementById("searchBox").value.trim().toLowerCase(), box=document.getElementById("searchResults");
+  if(!q){box.style.display="none";return;}
+  var hits=[];
+  DB.guests.forEach(function(g){if(g.name.toLowerCase().indexOf(q)>-1)hits.push("Guest — "+g.name+" ("+g.from+")");});
+  DB.bookings.forEach(function(b){if((b.guest+b.ref+b.room).toLowerCase().indexOf(q)>-1)hits.push("Booking "+b.ref+" — "+b.guest+", "+b.room);});
+  DB.invoices.forEach(function(v){if((v.guest+v.no).toLowerCase().indexOf(q)>-1)hits.push("Invoice "+v.no+" — "+v.guest+", "+money(v.amt)+", "+v.status);});
+  DB.tasks.forEach(function(x){if(x.task.toLowerCase().indexOf(q)>-1)hits.push("Task — "+x.task+" ("+x.owner+")");});
+  DB.stock.forEach(function(s){if(s.item.toLowerCase().indexOf(q)>-1)hits.push("Stock — "+s.item+": "+s.on+" on hand");});
+  DB.rates.forEach(function(r){if(r.name.toLowerCase().indexOf(q)>-1)hits.push("Rate — "+r.name+": "+money(r.price)+" "+r.unit);});
+  box.style.display="block";
+  box.innerHTML=hits.length?hits.slice(0,10).map(function(h){return "<div>"+esc(h)+"</div>";}).join(""):"<div>No matches in the sample data for “"+esc(q)+"”.</div>";
+}
+document.getElementById("searchBtn").onclick=doSearch;
+document.getElementById("searchBox").addEventListener("keydown",function(e){if(e.key==="Enter")doSearch();});
+
+/* Automations */
+document.getElementById("autoHouse").onclick=function(){
+  var made=0; DB.bookings.forEach(function(b){ if(b.status==="Invoiced")return; var exists=DB.tasks.some(function(x){return x.task.indexOf(b.room.split(" ").slice(0,2).join(" "))>-1;}); if(!exists){ DB.tasks.unshift({task:"Turnover clean — "+b.room,owner:"Maya Chen",due:b.inD,pri:"High",status:"Open"}); made++; }});
+  toast(made?("Created "+made+" housekeeping turnover task"+(made>1?"s":"")+"."):"Every upcoming check-out already has a turnover task."); show("tasks"); };
+document.getElementById("autoRecur").onclick=function(){
+  var n=0; DB.expenses.filter(function(e){return e.rec!=="—";}).forEach(function(e){ DB.expenses.push({date:"2026-10-29",item:e.item+" (auto-posted)",dept:e.dept,amt:e.amt,rec:e.rec}); n++; });
+  toast(n?("Posted "+n+" recurring expense"+(n>1?"s":"")+" for this month."):"No recurring expenses to post."); show("expenses"); };
+
+/* Downloads */
+function download(name,content,type){ var a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([content],{type:type})); a.download=name; a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);},2000); }
+document.getElementById("csvBtn").onclick=function(){
+  var csv="Invoice,Guest,Issued,Due,Amount,Status,Department\n"+DB.invoices.map(function(v){return [v.no,'"'+v.guest+'"',v.issued,v.due,v.amt,v.status,v.dept].join(",");}).join("\n");
+  download("cedar-hollow-demo-invoices.csv",csv,"text/csv"); toast("Invoices CSV downloaded."); };
+document.getElementById("backupBtn").onclick=function(){ download("cedar-hollow-demo-backup.json",JSON.stringify(DB,null,2),"application/json"); toast("Full demo backup downloaded."); };
+
+/* Sample data controls */
+document.getElementById("clearDemo").onclick=function(){ DB={bookings:[],invoices:[],guests:[],expenses:[],stock:[],tasks:[],rates:[],staff:[],months:DB.months,feed:[{t:"Sample data cleared from this page.",w:"29 Oct 2026"}]};
+  document.getElementById("clearDemo").style.display="none"; document.getElementById("loadDemo").style.display=""; render(); toast("Sample data cleared — this page only."); };
+document.getElementById("loadDemo").onclick=function(){ DB=seed(); document.getElementById("clearDemo").style.display=""; document.getElementById("loadDemo").style.display="none"; render(); toast("Full sample demo loaded."); };
+
+/* Quick Add */
+var modal=document.getElementById("modal");
+document.getElementById("quickAdd").onclick=function(){modal.classList.add("open");};
+document.getElementById("qaClose").onclick=function(){modal.classList.remove("open");};
+modal.addEventListener("click",function(e){if(e.target===modal)modal.classList.remove("open");});
+document.getElementById("qaType").onchange=function(){ document.getElementById("qaNameLbl").textContent=this.value==="booking"?"Guest name":this.value==="task"?"Task title":"Expense item"; };
+document.getElementById("qaSave").onclick=function(){
+  var type=document.getElementById("qaType").value, name=document.getElementById("qaName").value.trim(), det=document.getElementById("qaDetail").value.trim();
+  if(!name){toast("Add a name or title first.");return;}
+  if(type==="booking"){ DB.bookings.push({ref:"CH-"+(1011+DB.bookings.length),guest:name,room:det||"Fairway Room",inD:"2026-11-10",nights:2,value:parseInt(det,10)||560,status:"Confirmed"}); show("bookings"); }
+  if(type==="task"){ DB.tasks.unshift({task:name,owner:"Front Desk",due:"2026-10-31",pri:"Medium",status:"Open"}); show("tasks"); }
+  if(type==="expense"){ DB.expenses.push({date:"2026-10-29",item:name,dept:"General",amt:parseInt(det,10)||0,rec:"—"}); show("expenses"); }
+  modal.classList.remove("open"); document.getElementById("qaName").value=""; document.getElementById("qaDetail").value="";
+  toast("Added to the demo for this session.");
+};
+show("dashboard");
+</script>
+</body>
+</html>
